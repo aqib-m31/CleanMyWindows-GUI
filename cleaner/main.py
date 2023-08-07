@@ -1,7 +1,8 @@
 import customtkinter as ctk
 from components import LabelFrame, ContainerFrame
+import os
+import shutil
 import time
-
 import clean_my_windows
 
 
@@ -43,11 +44,13 @@ class App(ctk.CTk):
 
     def handle_scan(self):
         self.btn_scan.configure(state="disabled")
+        self.btn_scan.destroy()
+
         self.frm_container.add_stat("Scanning for junk...")
         self.frm_container.add_stat("Searching for cache directories...")
         local_cache_dirs = clean_my_windows.get_cache_dirs(clean_my_windows.LOCAL_DIR)
 
-        cache_dirs = local_cache_dirs + [
+        self.cache_dirs = local_cache_dirs + [
             clean_my_windows.USER_TEMP_DIR,
             clean_my_windows.SYSTEM_TEMP_DIR,
             clean_my_windows.PREFETCH_DIR,
@@ -80,6 +83,79 @@ class App(ctk.CTk):
             f"Total Size: {clean_my_windows.get_formatted_size(total_size)}"
         )
 
+        self.display_options()
+
+    def display_options(self):
+        self.btn_clean = ctk.CTkButton(
+            self,
+            text="Clean",
+            border_spacing=10,
+            command=self.handle_clean,
+            font=("Arial", 20),
+            fg_color="SeaGreen",
+            hover_color="dark slate gray",
+            text_color_disabled="gray80",
+        )
+        self.btn_clean.grid(row=2, column=0, columnspan=1, pady=20, padx=(0, 10), sticky="e")
+
+        self.btn_exit = ctk.CTkButton(
+            self,
+            text="Exit",
+            border_spacing=10,
+            command=self.handle_exit,
+            font=("Arial", 20),
+            fg_color="indian red",
+            hover_color="salmon",
+            text_color_disabled="gray80",
+        )
+        self.btn_exit.grid(row=2, column=1, columnspan=1, pady=20, padx=(10, 0), sticky="w")
+
+    def handle_clean(self):
+        self.btn_clean.configure(state="disabled")
+        self.btn_exit.configure(state="disabled")
+
+        self.frm_container.add_stat("Cleaning in progress...")
+        start_time = time.time()
+        cleaned_size = self.clean_dirs(self.cache_dirs)
+        end_time = time.time()
+        self.frm_container.add_stat(f"Total Space Freed: {clean_my_windows.get_formatted_size(cleaned_size)}")
+        self.frm_container.add_stat(f"Time Elapsed: {((end_time - start_time) * 1000):.2f}ms")
+        self.btn_clean.destroy()
+        self.btn_exit.grid(column=0, columnspan=2, sticky="")
+        self.btn_exit.configure(state="normal")
+
+    def clean_dirs(self, dirs):
+        cleaned_size = 0
+        for dir in dirs:
+            try:
+                files = os.listdir(dir)
+                if not files:
+                    self.frm_container.add_log(f"Nothing to clean in {dir}")
+                    continue
+                
+                for file in files:
+                    path = os.path.join(dir, file)
+
+                    try:
+                        if not os.path.isdir(path):
+                            file_size = os.path.getsize(path)
+                            self.frm_container.add_log(f"--> Removing {path}")
+                            os.remove(path)
+                        else:
+                            file_size = clean_my_windows.get_dir_size(path)
+                            self.frm_container.add_log(f"--> Removing {path}")
+                            shutil.rmtree(path)
+                    except PermissionError:
+                        self.frm_container.add_log(f"[ACCESS DENIED] Couldn't clean {path}")
+                    else:
+                        cleaned_size += file_size
+            except PermissionError:
+                self.frm_container.add_log(f"[ACCESS DENIED] Couldn't Clean {dir}")    
+
+        return cleaned_size
+    
+    def handle_exit(self):
+        self.destroy()
 
 app = App()
 app.mainloop()

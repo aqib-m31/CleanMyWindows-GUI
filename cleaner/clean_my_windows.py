@@ -135,7 +135,7 @@ def clean_cache(dir_path: str) -> None:
                         end="  ",
                         flush=True,
                     )
-                    # os.remove(path)
+                    os.remove(path)
                 else:
                     file_size = get_dir_size(path)
                     print(
@@ -143,7 +143,7 @@ def clean_cache(dir_path: str) -> None:
                         end="  ",
                         flush=True,
                     )
-                    # rmtree(path)
+                    rmtree(path)
             except PermissionError:
                 stats["Access Denied"].append(path)
                 print(Fore.LIGHTRED_EX + "[ACCESS DENIED]")
