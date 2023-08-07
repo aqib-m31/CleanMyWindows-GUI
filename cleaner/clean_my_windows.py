@@ -5,7 +5,7 @@ from re import search, IGNORECASE
 from sys import exit
 from colorama import Fore
 
-from paths import (
+from .paths import (
     USER_TEMP_DIR,
     SYSTEM_TEMP_DIR,
     PREFETCH_DIR,

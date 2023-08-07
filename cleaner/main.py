@@ -1,9 +1,9 @@
 import customtkinter as ctk
-from components import LabelFrame, ContainerFrame
+from .components import ContainerFrame
 import os
 import shutil
 import time
-import clean_my_windows
+from cleaner import clean_my_windows
 
 
 class App(ctk.CTk):
@@ -157,5 +157,6 @@ class App(ctk.CTk):
     def handle_exit(self):
         self.destroy()
 
-app = App()
-app.mainloop()
+if __name__ == "__main__":
+    app = App()
+    app.mainloop()
