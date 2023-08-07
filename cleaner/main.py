@@ -46,8 +46,8 @@ class App(ctk.CTk):
         self.btn_scan.configure(state="disabled")
         self.btn_scan.destroy()
 
-        self.frm_container.add_stat("Scanning for junk...")
-        self.frm_container.add_stat("Searching for cache directories...")
+        self.frm_container.add_stat("Scanning for junk...\n")
+        self.frm_container.add_stat("Searching for cache directories...\n")
         local_cache_dirs = clean_my_windows.get_cache_dirs(clean_my_windows.LOCAL_DIR)
 
         self.cache_dirs = local_cache_dirs + [
@@ -56,7 +56,7 @@ class App(ctk.CTk):
             clean_my_windows.PREFETCH_DIR,
         ]
 
-        self.frm_container.add_stat(f"Scan Results")
+        self.frm_container.add_stat(f"Scan Results\n")
         self.display_sizes(
             {
                 "User Temp": clean_my_windows.USER_TEMP_DIR,
@@ -76,11 +76,11 @@ class App(ctk.CTk):
                 size = clean_my_windows.get_dir_size(path)
             total_size += size
             self.frm_container.add_stat(
-                f"{label} Size: {clean_my_windows.get_formatted_size(size)}"
+                f"{label} Size: {clean_my_windows.get_formatted_size(size)}\n"
             )
 
         self.frm_container.add_stat(
-            f"Total Size: {clean_my_windows.get_formatted_size(total_size)}"
+            f"Total Size: {clean_my_windows.get_formatted_size(total_size)}\n"
         )
 
         self.display_options()
@@ -96,7 +96,9 @@ class App(ctk.CTk):
             hover_color="dark slate gray",
             text_color_disabled="gray80",
         )
-        self.btn_clean.grid(row=2, column=0, columnspan=1, pady=20, padx=(0, 10), sticky="e")
+        self.btn_clean.grid(
+            row=2, column=0, columnspan=1, pady=20, padx=(0, 10), sticky="e"
+        )
 
         self.btn_exit = ctk.CTkButton(
             self,
@@ -108,18 +110,24 @@ class App(ctk.CTk):
             hover_color="salmon",
             text_color_disabled="gray80",
         )
-        self.btn_exit.grid(row=2, column=1, columnspan=1, pady=20, padx=(10, 0), sticky="w")
+        self.btn_exit.grid(
+            row=2, column=1, columnspan=1, pady=20, padx=(10, 0), sticky="w"
+        )
 
     def handle_clean(self):
         self.btn_clean.configure(state="disabled")
         self.btn_exit.configure(state="disabled")
 
-        self.frm_container.add_stat("Cleaning in progress...")
+        self.frm_container.add_stat("Cleaning in progress...\n")
         start_time = time.time()
         cleaned_size = self.clean_dirs(self.cache_dirs)
         end_time = time.time()
-        self.frm_container.add_stat(f"Total Space Freed: {clean_my_windows.get_formatted_size(cleaned_size)}")
-        self.frm_container.add_stat(f"Time Elapsed: {((end_time - start_time) * 1000):.2f}ms")
+        self.frm_container.add_stat(
+            f"Total Space Freed: {clean_my_windows.get_formatted_size(cleaned_size)}\n"
+        )
+        self.frm_container.add_stat(
+            f"Time Elapsed: {((end_time - start_time) * 1000):.2f}ms\n"
+        )
         self.btn_clean.destroy()
         self.btn_exit.grid(column=0, columnspan=2, sticky="")
         self.btn_exit.configure(state="normal")
@@ -130,32 +138,37 @@ class App(ctk.CTk):
             try:
                 files = os.listdir(dir)
                 if not files:
-                    self.frm_container.add_log(f"Nothing to clean in {dir}")
+                    self.frm_container.add_log(f"Nothing to clean in {dir}\n")
                     continue
-                
+
                 for file in files:
                     path = os.path.join(dir, file)
 
                     try:
                         if not os.path.isdir(path):
                             file_size = os.path.getsize(path)
-                            self.frm_container.add_log(f"--> Removing {path}")
+                            self.frm_container.add_log(f"--> Removing {path}\n")
                             os.remove(path)
                         else:
                             file_size = clean_my_windows.get_dir_size(path)
-                            self.frm_container.add_log(f"--> Removing {path}")
+                            self.frm_container.add_log(f"--> Removing {path}\n")
                             shutil.rmtree(path)
                     except PermissionError:
-                        self.frm_container.add_log(f"[ACCESS DENIED] Couldn't clean {path}")
+                        self.frm_container.add_log(
+                            f"--> [ACCESS DENIED] Couldn't clean {path}\n"
+                        )
                     else:
                         cleaned_size += file_size
             except PermissionError:
-                self.frm_container.add_log(f"[ACCESS DENIED] Couldn't Clean {dir}")    
+                self.frm_container.add_log(
+                    f"--> [ACCESS DENIED] Couldn't Clean {dir}\n"
+                )
 
         return cleaned_size
-    
+
     def handle_exit(self):
         self.destroy()
+
 
 if __name__ == "__main__":
     app = App()
