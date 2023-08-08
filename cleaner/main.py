@@ -12,7 +12,7 @@ class App(ctk.CTk):
         self.title("Clean My Windows")
         self.geometry("1080x700")
         self.minsize(width=640, height=700)
-        ctk.set_appearance_mode("dark")
+        ctk.set_appearance_mode("light")
 
         self.columnconfigure((0, 1), weight=1)
         self.rowconfigure((0, 1, 2), weight=1)
@@ -22,11 +22,22 @@ class App(ctk.CTk):
             text="CLEAN MY WINDOWS",
             fg_color=("sky blue", "dark slate gray"),
             text_color=("gray1", "gray100"),
-            font=("Courier New", 32),
+            font=("Calibri", 32),
             anchor="center",
             pady=25,
         )
         self.lbl_title.grid(row=0, column=0, sticky="new", columnspan=2)
+
+        self.mode = ctk.StringVar(value="off")
+        self.switch_mode = ctk.CTkSwitch(
+            self.lbl_title,
+            text="Dark Mode",
+            command=self.switch_appearance,
+            variable=self.mode,
+            onvalue="dark",
+            offvalue="light",
+        )
+        self.switch_mode.grid(row=0, column=0, sticky="e", padx=(0, 20))
 
         self.frm_container = ContainerFrame(self)
         self.frm_container.grid(
@@ -38,11 +49,11 @@ class App(ctk.CTk):
             text="Scan Junk",
             border_spacing=10,
             command=self.handle_scan,
-            font=("Arial", 20),
-            fg_color=("cadetblue1","SeaGreen"),
+            font=("Calibri", 20),
+            fg_color=("cadetblue1", "SeaGreen"),
             hover_color=("SkyBlue1", "dark slate gray"),
             text_color_disabled=("gray40", "gray80"),
-            text_color=("gray1", "gray100")
+            text_color=("gray1", "gray100"),
         )
         self.btn_scan.grid(row=2, column=0, columnspan=2, pady=(0, 20))
 
@@ -95,11 +106,11 @@ class App(ctk.CTk):
             text="Clean",
             border_spacing=10,
             command=self.handle_clean,
-            font=("Arial", 20),
-            fg_color=("cadetblue1","SeaGreen"),
+            font=("Calibri", 20),
+            fg_color=("cadetblue1", "SeaGreen"),
             hover_color=("SkyBlue1", "dark slate gray"),
             text_color_disabled=("gray40", "gray80"),
-            text_color=("gray1", "gray100")
+            text_color=("gray1", "gray100"),
         )
         self.btn_clean.grid(
             row=2, column=0, columnspan=1, pady=(0, 20), padx=(0, 10), sticky="e"
@@ -110,11 +121,11 @@ class App(ctk.CTk):
             text="Exit",
             border_spacing=10,
             command=self.handle_exit,
-            font=("Arial", 20),
+            font=("Calibri", 20),
             fg_color=("salmon", "red"),
             hover_color=("light coral", "indian red"),
             text_color_disabled="gray80",
-            text_color=("gray1", "gray100")
+            text_color=("gray1", "gray100"),
         )
         self.btn_exit.grid(
             row=2, column=1, columnspan=1, pady=(0, 20), padx=(10, 0), sticky="w"
@@ -174,6 +185,9 @@ class App(ctk.CTk):
 
     def handle_exit(self):
         self.destroy()
+
+    def switch_appearance(self):
+        ctk.set_appearance_mode(self.switch_mode.get())
 
 
 if __name__ == "__main__":
