@@ -1,4 +1,3 @@
-from cleaner.main import App
 import os, argparse
 
 
@@ -10,7 +9,8 @@ def main():
     args = parser.parse_args()
     if args.install == "y":
         install_requirements()
-
+        
+    from cleaner.main import App 
     app = App()
     app.mainloop()
 
