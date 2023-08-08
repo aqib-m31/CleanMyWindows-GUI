@@ -11,10 +11,11 @@ class App(ctk.CTk):
         super().__init__()
         self.title("Clean My Windows")
         self.geometry("1080x700")
-        self.resizable(width=False, height=False)
+        self.minsize(width=640, height=700)
         ctk.set_appearance_mode("dark")
 
         self.columnconfigure((0, 1), weight=1)
+        self.rowconfigure((0, 1, 2), weight=1)
 
         self.lbl_title = ctk.CTkLabel(
             self,
@@ -25,10 +26,12 @@ class App(ctk.CTk):
             anchor="center",
             pady=25,
         )
-        self.lbl_title.grid(row=0, column=0, sticky="ew", columnspan=2)
+        self.lbl_title.grid(row=0, column=0, sticky="new", columnspan=2)
 
         self.frm_container = ContainerFrame(self)
-        self.frm_container.grid(row=1, column=0, sticky="ew", columnspan=2, pady=20)
+        self.frm_container.grid(
+            row=1, column=0, sticky="ew", columnspan=2, pady=20, padx=20
+        )
 
         self.btn_scan = ctk.CTkButton(
             self,
@@ -40,7 +43,7 @@ class App(ctk.CTk):
             hover_color="dark slate gray",
             text_color_disabled="gray80",
         )
-        self.btn_scan.grid(row=2, column=0, columnspan=2, pady=20)
+        self.btn_scan.grid(row=2, column=0, columnspan=2, pady=(0, 20))
 
     def handle_scan(self):
         self.btn_scan.configure(state="disabled")
@@ -97,7 +100,7 @@ class App(ctk.CTk):
             text_color_disabled="gray80",
         )
         self.btn_clean.grid(
-            row=2, column=0, columnspan=1, pady=20, padx=(0, 10), sticky="e"
+            row=2, column=0, columnspan=1, pady=(0, 20), padx=(0, 10), sticky="e"
         )
 
         self.btn_exit = ctk.CTkButton(
@@ -111,7 +114,7 @@ class App(ctk.CTk):
             text_color_disabled="gray80",
         )
         self.btn_exit.grid(
-            row=2, column=1, columnspan=1, pady=20, padx=(10, 0), sticky="w"
+            row=2, column=1, columnspan=1, pady=(0, 20), padx=(10, 0), sticky="w"
         )
 
     def handle_clean(self):
