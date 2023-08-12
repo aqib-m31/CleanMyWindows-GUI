@@ -1,15 +1,12 @@
 import customtkinter as ctk
-from PIL import Image
-from components import DirStat
+from components import MainFrame
 from utils import get_formatted_size
-from paths import (
-    USER_TEMP_DIR,
-    SYSTEM_TEMP_DIR,
-    PREFETCH_DIR,
-    LOCAL_DIR,
+from utils import (
+    get_dir_size,
+    get_formatted_size,
+    get_cache_dirs,
+    clean_dir,
 )
-import re
-from utils import get_dir_size, get_dirs_size, get_formatted_size, get_cache_dirs
 
 
 class App(ctk.CTk):
@@ -25,16 +22,16 @@ class App(ctk.CTk):
         self.resizable(width=False, height=False)
         self.title("Clean My Windows")
         ctk.set_appearance_mode("light")
-
         self.columnconfigure(0, weight=1)
+
         # Title Label
         self.lbl_title = ctk.CTkLabel(
-            self, text="Clean My Windows", font=("Calibri", 35)
+            self, text="CLEAN MY WINDOWS", font=ctk.CTkFont("Calibri", 38, "bold")
         )
-        self.lbl_title.grid(row=0, column=0, pady=20)
+        self.lbl_title.grid(row=0, column=0, pady=20, columnspan=2, sticky="new")
 
         # Main Frame to display stats
-        self.frm_main = ctk.CTkFrame(self, height=400, fg_color="gray94")
+        self.frm_main = MainFrame(self)
         self.frm_main.grid(
             row=1, column=0, padx=50, pady=20, sticky="nsew", columnspan=2
         )
@@ -56,28 +53,17 @@ class App(ctk.CTk):
         )
         self.btn_scan.grid(row=2, column=0, pady=20)
 
-    def add_stat(
-        self, name: str, dir_path: str, dir_size: str, row: int, column: int
-    ) -> None:
-        self.folder = DirStat(self.frm_main, name, dir_size, dir_path)
-        self.folder.grid(row=row, column=column, ipadx=30, ipady=10, padx=10, pady=10)
-
     def handle_scan(self):
         self.btn_scan.configure(state="disabled", text="Scanning...")
         for name, dir_path in get_cache_dirs():
-            size = get_formatted_size(get_dir_size(dir_path))
-            if App.CURRENT_COL == App.MAX_COL:
-                App.CURRENT_ROW += 1
-                App.CURRENT_COL = 0
-            self.add_stat(
+            size = get_dir_size(dir_path)
+            self.frm_main.add_stat(
                 name=name,
                 dir_path=dir_path,
                 dir_size=size,
-                row=App.CURRENT_ROW,
-                column=App.CURRENT_COL,
             )
-            App.CURRENT_COL += 1
             self.frm_main.update()
+        self.total_size = self.frm_main.display_total_size()
         self.display_options()
 
     def display_options(self):
@@ -101,7 +87,30 @@ class App(ctk.CTk):
         self.btn_exit.grid(row=2, column=1, pady=20, padx=10, sticky="w")
 
     def clean(self):
-        print("Cleaning")
+        self.prgbar = ctk.CTkProgressBar(self, progress_color="green")
+        self.prgbar.grid(row=3, column=0, columnspan=2, padx=50, pady=15, sticky="ew")
+        self.lbl_prgbar = ctk.CTkLabel(self, text="", font=("Calibri", 20))
+        self.lbl_prgbar.grid(row=4, column=0, columnspan=2, pady=(0, 15), sticky="ew")
+
+        self.btn_scan.configure(state="disabled", text="Cleaning")
+        self.btn_exit.configure(state="disabled")
+
+        total_cleaned_size = 0
+        for dir in self.frm_main.get_dirs():
+            cleaned_size = clean_dir(dir.path)
+            total_cleaned_size += cleaned_size
+
+            if cleaned_size < 0:
+                dir.state = "error"
+            else:
+                dir.state = "cleaned"
+
+            self.prgbar.set(total_cleaned_size / self.total_size)
+            self.lbl_prgbar.configure(
+                text=f"Cleaned: {get_formatted_size(total_cleaned_size)}"
+            )
+        self.btn_scan.configure(text="Cleaned")
+        self.btn_exit.configure(state="normal")
 
 
 def main() -> None:

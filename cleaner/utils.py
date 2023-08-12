@@ -1,11 +1,13 @@
+from random import choice
 import os
 from re import search, IGNORECASE
 from paths import (
     USER_TEMP_DIR,
     SYSTEM_TEMP_DIR,
-    PREFETCH_DIR,
     LOCAL_DIR,
+    PREFETCH_DIR,
 )
+from shutil import rmtree
 
 
 def get_dir_size(dir_path: str) -> int:
@@ -21,23 +23,6 @@ def get_dir_size(dir_path: str) -> int:
 
     for root, _, files in os.walk(dir_path):
         size += sum(os.path.getsize(os.path.join(root, name)) for name in files)
-
-    return size
-
-
-def get_dirs_size(dir_paths: list) -> int:
-    """
-    Return size of a list of directories.
-
-    :param dir_paths: List of directory paths
-    :type dir_paths: list
-    :return: Size of directories in dir_paths
-    :rtype: intyield
-    """
-    size = 0
-
-    for dir in dir_paths:
-        size += get_dir_size(dir)
 
     return size
 
@@ -79,3 +64,29 @@ def get_cache_dirs():
     yield ["User\nTemp", USER_TEMP_DIR]
     yield ["System\nTemp", SYSTEM_TEMP_DIR]
     yield ["Prefetch", PREFETCH_DIR]
+
+
+def clean_dir(dir: str) -> int:
+    cleaned_size = 0
+    try:
+        files = os.listdir(dir)
+        if not files:
+            return cleaned_size
+        for file in files:
+            path = os.path.join(dir, file)
+
+            try:
+                if not os.path.isdir(path):
+                    file_size = os.path.getsize(path)
+                    os.remove(path)
+                else:
+                    file_size = get_dir_size(path)
+                    rmtree(path)
+            except (PermissionError, FileNotFoundError):
+                continue
+            else:
+                cleaned_size += file_size
+    except (PermissionError, FileNotFoundError):
+        return -1
+
+    return cleaned_size
