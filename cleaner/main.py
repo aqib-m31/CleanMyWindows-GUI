@@ -54,7 +54,10 @@ class App(ctk.CTk):
         self.btn_scan.grid(row=2, column=0, pady=20)
 
     def handle_scan(self):
+        """Handle scanning process."""
         self.btn_scan.configure(state="disabled", text="Scanning...")
+
+        # Get name and path of cache directory and add dir stat to main frame
         for name, dir_path in get_cache_dirs():
             size = get_dir_size(dir_path)
             self.frm_main.add_stat(
@@ -63,12 +66,16 @@ class App(ctk.CTk):
                 dir_size=size,
             )
             self.frm_main.update()
-        self.total_size = self.frm_main.display_total_size()
+
+        # Display total size of cache dirs and display option for cleaning
+        self.total_size = self.display_total_size()
         self.display_options()
 
     def display_options(self):
+        """Display option for cleaning cache and exit."""
         self.btn_scan.configure(state="normal", text="Clean", command=self.clean)
         self.btn_scan.grid(padx=10, sticky="e")
+
         self.btn_exit = ctk.CTkButton(
             self,
             text="Exit",
@@ -87,30 +94,59 @@ class App(ctk.CTk):
         self.btn_exit.grid(row=2, column=1, pady=20, padx=10, sticky="w")
 
     def clean(self):
+        """Clean the cache directories."""
+        self.lbl_total_size.destroy()
+
+        # Display progress bar
         self.prgbar = ctk.CTkProgressBar(self, progress_color="green")
+        self.prgbar.set(0)
         self.prgbar.grid(row=3, column=0, columnspan=2, padx=50, pady=15, sticky="ew")
         self.lbl_prgbar = ctk.CTkLabel(self, text="", font=("Calibri", 20))
         self.lbl_prgbar.grid(row=4, column=0, columnspan=2, pady=(0, 15), sticky="ew")
 
+        # Disable clean button and exit button till cleaning finishes
         self.btn_scan.configure(state="disabled", text="Cleaning")
         self.btn_exit.configure(state="disabled")
 
         total_cleaned_size = 0
         for dir in self.frm_main.get_dirs():
+            # Clean dir and keep track of cleaned size
             cleaned_size = clean_dir(dir.path)
             total_cleaned_size += cleaned_size
 
+            # Update the state (check mark on folder)
             if cleaned_size < 0:
                 dir.state = "error"
             else:
                 dir.state = "cleaned"
 
+            # Update the progress bar
             self.prgbar.set(total_cleaned_size / self.total_size)
             self.lbl_prgbar.configure(
                 text=f"Cleaned: {get_formatted_size(total_cleaned_size)}"
             )
+
+        # Update Clean button text and restore state of exit button
         self.btn_scan.configure(text="Cleaned")
         self.btn_exit.configure(state="normal")
+
+    def display_total_size(self):
+        """Display the total size of the cache dirs."""
+        dirs = self.frm_main.winfo_children()
+        size = 0
+
+        for dir in dirs:
+            size += dir.dir_size
+
+        self.lbl_total_size = ctk.CTkLabel(
+            self,
+            text=f"Total Size: {get_formatted_size(size)}",
+            font=ctk.CTkFont("Calibri", 24, "bold"),
+            text_color="sea green",
+        )
+        self.lbl_total_size.grid(row=3, column=0, pady=10, columnspan=2, sticky="ew")
+
+        return size
 
 
 def main() -> None:

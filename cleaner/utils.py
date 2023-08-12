@@ -1,11 +1,6 @@
-from random import choice
 import os
 from re import search, IGNORECASE
-from paths import (
-    USER_TEMP_DIR,
-    SYSTEM_TEMP_DIR,
-    LOCAL_DIR
-)
+from paths import USER_TEMP_DIR, SYSTEM_TEMP_DIR, LOCAL_DIR
 from shutil import rmtree
 
 
@@ -65,14 +60,24 @@ def get_cache_dirs():
 
 
 def clean_dir(dir: str) -> int:
+    """
+    Clean a directory.
+
+    :param dir: Path of a directory
+    :type dir: str
+    :return: Cleaned size or -1 for error
+    :rtype: int
+    """
     cleaned_size = 0
+
     try:
         files = os.listdir(dir)
+
         if not files:
             return cleaned_size
+
         for file in files:
             path = os.path.join(dir, file)
-
             try:
                 if not os.path.isdir(path):
                     file_size = os.path.getsize(path)
