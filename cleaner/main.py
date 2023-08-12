@@ -17,7 +17,7 @@ class App(ctk.CTk):
     def __init__(self):
         # Set Window Configuration
         super().__init__()
-        self.iconbitmap("..\\cmw.ico")
+        self.iconbitmap("images\\cmw.ico")
         self.geometry("1080x700")
         self.resizable(width=False, height=False)
         self.title("Clean My Windows")

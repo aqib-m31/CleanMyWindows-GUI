@@ -4,8 +4,7 @@ from re import search, IGNORECASE
 from paths import (
     USER_TEMP_DIR,
     SYSTEM_TEMP_DIR,
-    LOCAL_DIR,
-    PREFETCH_DIR,
+    LOCAL_DIR
 )
 from shutil import rmtree
 
@@ -63,7 +62,6 @@ def get_cache_dirs():
 
     yield ["User\nTemp", USER_TEMP_DIR]
     yield ["System\nTemp", SYSTEM_TEMP_DIR]
-    yield ["Prefetch", PREFETCH_DIR]
 
 
 def clean_dir(dir: str) -> int:
@@ -82,11 +80,11 @@ def clean_dir(dir: str) -> int:
                 else:
                     file_size = get_dir_size(path)
                     rmtree(path)
-            except (PermissionError, FileNotFoundError):
+            except PermissionError:
                 continue
             else:
                 cleaned_size += file_size
-    except (PermissionError, FileNotFoundError):
+    except PermissionError:
         return -1
 
     return cleaned_size
