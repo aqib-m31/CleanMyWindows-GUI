@@ -85,8 +85,9 @@ class App(ctk.CTk):
         """Clean the cache directories."""
         self.lbl_total_size.destroy()
 
-        # Disable select all option
+        # Disable select all option and select option on dirs
         self.checkbox_select_all.configure(state="disabled")
+        self.frm_main.disable_all()
 
         # Display progress bar
         self.prgbar = ctk.CTkProgressBar(self, progress_color="light sea green")

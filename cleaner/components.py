@@ -138,6 +138,12 @@ class MainFrame(ctk.CTkScrollableFrame):
             if isinstance(dir, DirStat):
                 dir.checkbox.toggle()
 
+    def disable_all(self):
+        """Set state of all the checkboxes of DirStat to disabled."""
+        for dir in self.winfo_children():
+            if isinstance(dir, DirStat):
+                dir.checkbox.configure(state="disabled")
+
 
 class CButton(ctk.CTkButton):
     def __init__(self, master, text, command):
