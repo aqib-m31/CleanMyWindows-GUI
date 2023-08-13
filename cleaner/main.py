@@ -83,11 +83,11 @@ class App(ctk.CTk):
         # Display progress bar
         self.prgbar = ctk.CTkProgressBar(self, progress_color="light sea green")
         self.prgbar.set(0)
-        self.prgbar.grid(row=3, column=0, columnspan=2, padx=50, pady=15, sticky="ew")
+        self.prgbar.grid(row=3, column=0, columnspan=2, padx=50, pady=10, sticky="ew")
         self.lbl_prgbar = ctk.CTkLabel(
             self, text="", font=self.btn_exit.cget("font"), text_color="light sea green"
         )
-        self.lbl_prgbar.grid(row=4, column=0, columnspan=2, pady=(0, 15), sticky="ew")
+        self.lbl_prgbar.grid(row=4, column=0, columnspan=2, pady=(0, 5), sticky="ew")
 
         # Disable clean button and exit button till cleaning finishes
         self.btn_clean.configure(state="disabled", text="CLEANING")
@@ -110,6 +110,10 @@ class App(ctk.CTk):
             self.lbl_prgbar.configure(
                 text=f"Cleaned: {get_formatted_size(total_cleaned_size)}"
             )
+
+        if self.prgbar.get() != 1:
+            self.lbl_msg = ctk.CTkLabel(self, text="[ACCESS DENIED] TO SOME FILES", font=ctk.CTkFont("Calibri", 15, "bold"), text_color="red")
+            self.lbl_msg.grid(row=5, column=0, columnspan=2, pady=(0, 15), sticky="ew")
 
         # Update Clean button text and restore state of exit button
         self.btn_clean.configure(text="CLEANED")
