@@ -59,17 +59,21 @@ def get_cache_dirs():
     yield ["System\nTemp", SYSTEM_TEMP_DIR]
 
 
-def clean_dir(dir: str) -> int:
+def clean_dir(dir: str) -> list:
     """
     Clean a directory.
 
     :param dir: Path of a directory
     :type dir: str
-    :return: Cleaned size or -1 for error
-    :rtype: int
+    :return: List of Cleaned size and No. of files that couldn't be deleted
+    :rtype: list
     """
     cleaned_size = 0
+    access_denied_files = 0
 
+    if not os.path.exists(dir):
+        return [0, 0]
+    
     try:
         files = os.listdir(dir)
 
@@ -86,10 +90,11 @@ def clean_dir(dir: str) -> int:
                     file_size = get_dir_size(path)
                     rmtree(path)
             except PermissionError:
+                access_denied_files += 1
                 continue
             else:
                 cleaned_size += file_size
     except PermissionError:
-        return -1
+        access_denied_files += 1
 
-    return cleaned_size
+    return [cleaned_size, access_denied_files]

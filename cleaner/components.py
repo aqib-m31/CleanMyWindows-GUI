@@ -20,19 +20,34 @@ class DirStat(ctk.CTkFrame):
         self.columnconfigure(0, weight=1)
 
         # Directory icon
-        self.dir_icon = ctk.CTkImage(Image.open("cleaner\\images\\folder.png"), size=(60, 60))
+        self.dir_icon = ctk.CTkImage(
+            Image.open("cleaner\\images\\folder.png"), size=(60, 60)
+        )
         self.lbl_dir_icon = ctk.CTkLabel(self, image=self.dir_icon, text="")
-        self.lbl_dir_icon.grid(row=0, column=0, pady=(5, 5), padx=(5, 5))
+        self.lbl_dir_icon.grid(row=0, column=0, pady=(5, 5), padx=(5, 0), sticky="new")
+
+        self.checkbox = ctk.CTkCheckBox(
+            self,
+            width=20,
+            height=20,
+            text="",
+            checkbox_width=20,
+            checkbox_height=20,
+            border_width=2,
+            border_color="light sea green",
+            fg_color="light sea green",
+        )
+        self.checkbox.grid(row=0, column=0, sticky="ne")
 
         # Name of dir
         self.lbl_name = ctk.CTkLabel(self, text=self.name, text_color="gray1")
-        self.lbl_name.grid(row=1, column=0)
+        self.lbl_name.grid(row=1, column=0, sticky="new")
 
         # Size of dir
         self.lbl_size = ctk.CTkLabel(
             self, text=get_formatted_size(self.dir_size), text_color="gray1"
         )
-        self.lbl_size.grid(row=2, column=0)
+        self.lbl_size.grid(row=2, column=0, sticky="new")
 
         self.state = None
 
@@ -107,14 +122,21 @@ class MainFrame(ctk.CTkScrollableFrame):
             ipady=10,
             padx=10,
             pady=10,
+            sticky="n",
         )
         MainFrame.CURRENT_COL += 1
 
     def get_dirs(self):
         """Yield DirStat objects in main frame."""
         for dir in self.winfo_children():
-            if isinstance(dir, DirStat):
+            if isinstance(dir, DirStat) and dir.checkbox.get():
                 yield dir
+
+    def select_all(self):
+        """Select all the dirs in main frame."""
+        for dir in self.winfo_children():
+            if isinstance(dir, DirStat):
+                dir.checkbox.toggle()
 
 
 class CButton(ctk.CTkButton):
@@ -130,4 +152,18 @@ class CButton(ctk.CTkButton):
             text_color="light sea green",
             hover_color="alice blue",
             text_color_disabled="gray50",
+        )
+
+
+class CCheckBox(ctk.CTkCheckBox):
+    def __init__(self, master, text, command):
+        super().__init__(master=master, text=text, command=command)
+        self.configure(
+            width=20,
+            height=20,
+            checkbox_width=20,
+            checkbox_height=20,
+            border_width=2,
+            border_color="light sea green",
+            fg_color="light sea green",
         )

@@ -1,5 +1,5 @@
 import customtkinter as ctk
-from .components import MainFrame, CButton
+from .components import MainFrame, CButton, CCheckBox
 from .utils import (
     get_dir_size,
     get_formatted_size,
@@ -76,9 +76,17 @@ class App(ctk.CTk):
         self.columnconfigure((0, 1), weight=1)
         self.btn_exit.grid(row=2, column=1, pady=20, padx=10, sticky="w")
 
+        self.checkbox_select_all = CCheckBox(
+            self, "Select All", command=self.frm_main.select_all
+        )
+        self.checkbox_select_all.grid(row=2, column=1, sticky="e", padx=(0, 60))
+
     def clean(self):
         """Clean the cache directories."""
         self.lbl_total_size.destroy()
+
+        # Disable select all option
+        self.checkbox_select_all.configure(state="disabled")
 
         # Display progress bar
         self.prgbar = ctk.CTkProgressBar(self, progress_color="light sea green")
@@ -94,13 +102,15 @@ class App(ctk.CTk):
         self.btn_exit.configure(state="disabled")
 
         total_cleaned_size = 0
+        access_denied_files = 0
         for dir in self.frm_main.get_dirs():
             # Clean dir and keep track of cleaned size
-            cleaned_size = clean_dir(dir.path)
+            cleaned_size, access_denied_f = clean_dir(dir.path)
             total_cleaned_size += cleaned_size
+            access_denied_files += access_denied_f
 
             # Update the state (check mark on folder)
-            if cleaned_size < 0:
+            if cleaned_size < 1:
                 dir.state = "error"
             else:
                 dir.state = "cleaned"
@@ -111,12 +121,20 @@ class App(ctk.CTk):
                 text=f"Cleaned: {get_formatted_size(total_cleaned_size)}"
             )
 
-        if self.prgbar.get() != 1:
-            self.lbl_msg = ctk.CTkLabel(self, text="[ACCESS DENIED] TO SOME FILES", font=ctk.CTkFont("Calibri", 15, "bold"), text_color="red")
+        if access_denied_files != 0:
+            self.lbl_msg = ctk.CTkLabel(
+                self,
+                text=f"[ACCESS DENIED] TO {access_denied_files} FILES",
+                font=("Calibri", 15),
+                text_color="red",
+            )
             self.lbl_msg.grid(row=5, column=0, columnspan=2, pady=(0, 15), sticky="ew")
 
         # Update Clean button text and restore state of exit button
-        self.btn_clean.configure(text="CLEANED")
+        if total_cleaned_size == 0:
+            self.btn_clean.configure(text="Nothing to Clean")
+        else:
+            self.btn_clean.configure(text="CLEANED")
         self.btn_exit.configure(state="normal")
 
     def display_total_size(self):
