@@ -25,11 +25,13 @@ class DirStat(ctk.CTkFrame):
         self.lbl_dir_icon.grid(row=0, column=0, pady=(5, 5), padx=(5, 5))
 
         # Name of dir
-        self.lbl_name = ctk.CTkLabel(self, text=self.name)
+        self.lbl_name = ctk.CTkLabel(self, text=self.name, text_color="gray1")
         self.lbl_name.grid(row=1, column=0)
 
         # Size of dir
-        self.lbl_size = ctk.CTkLabel(self, text=get_formatted_size(self.dir_size))
+        self.lbl_size = ctk.CTkLabel(
+            self, text=get_formatted_size(self.dir_size), text_color="gray1"
+        )
         self.lbl_size.grid(row=2, column=0)
 
         self.state = None
@@ -79,7 +81,7 @@ class MainFrame(ctk.CTkScrollableFrame):
     MAX_COL = 7
 
     def __init__(self, master):
-        super().__init__(master=master, fg_color="gray94", height=370)
+        super().__init__(master=master, fg_color="gray97", height=370)
         self.folder = None
 
     def add_stat(self, name: str, dir_path: str, dir_size: int) -> None:
@@ -113,3 +115,19 @@ class MainFrame(ctk.CTkScrollableFrame):
         for dir in self.winfo_children():
             if isinstance(dir, DirStat):
                 yield dir
+
+
+class CButton(ctk.CTkButton):
+    def __init__(self, master, text, command):
+        super().__init__(master=master, text=text, command=command)
+        self.configure(
+            font=ctk.CTkFont("Calibri", 20, weight="bold"),
+            border_width=1,
+            border_spacing=15,
+            corner_radius=15,
+            border_color="light sea green",
+            fg_color="transparent",
+            text_color="light sea green",
+            hover_color="alice blue",
+            text_color_disabled="gray50",
+        )
