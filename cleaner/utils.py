@@ -71,6 +71,9 @@ def clean_dir(dir: str) -> list:
     cleaned_size = 0
     access_denied_files = 0
 
+    if not os.path.exists(dir):
+        return [0, 0]
+    
     try:
         files = os.listdir(dir)
 
