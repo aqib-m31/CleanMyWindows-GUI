@@ -1,6 +1,6 @@
 import os
 from re import search, IGNORECASE
-from paths import USER_TEMP_DIR, SYSTEM_TEMP_DIR, LOCAL_DIR
+from .paths import USER_TEMP_DIR, SYSTEM_TEMP_DIR, LOCAL_DIR
 from shutil import rmtree
 
 

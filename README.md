@@ -6,6 +6,5 @@
 ### This tool cleans following directories:
 - `C:\Users\username\AppData\Local\Temp`
 - `C:\Windows\Temp`
-- `C:\Windows\Prefetch`
 - `All directories with names cache or cache2 in C:\Users\username\AppData\Local`
 ---

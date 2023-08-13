@@ -1,13 +1,13 @@
 import customtkinter as ctk
 from PIL import Image
-from utils import get_formatted_size
+from .utils import get_formatted_size
 
 
 class DirStat(ctk.CTkFrame):
     # Dict of states with respective images as their values
     states = {
-        "cleaned": ctk.CTkImage(Image.open("images\\done.png"), size=(25, 25)),
-        "error": ctk.CTkImage(Image.open("images\\error.png"), size=(25, 25)),
+        "cleaned": ctk.CTkImage(Image.open("cleaner\\images\\done.png"), size=(25, 25)),
+        "error": ctk.CTkImage(Image.open("cleaner\\images\\error.png"), size=(25, 25)),
     }
 
     def __init__(self, master, name, dir_size, path):
@@ -20,7 +20,7 @@ class DirStat(ctk.CTkFrame):
         self.columnconfigure(0, weight=1)
 
         # Directory icon
-        self.dir_icon = ctk.CTkImage(Image.open("images\\folder.png"), size=(60, 60))
+        self.dir_icon = ctk.CTkImage(Image.open("cleaner\\images\\folder.png"), size=(60, 60))
         self.lbl_dir_icon = ctk.CTkLabel(self, image=self.dir_icon, text="")
         self.lbl_dir_icon.grid(row=0, column=0, pady=(5, 5), padx=(5, 5))
 

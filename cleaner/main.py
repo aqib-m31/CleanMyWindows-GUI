@@ -1,7 +1,6 @@
 import customtkinter as ctk
-from components import MainFrame, CButton
-from utils import get_formatted_size
-from utils import (
+from .components import MainFrame, CButton
+from .utils import (
     get_dir_size,
     get_formatted_size,
     get_cache_dirs,
@@ -17,7 +16,7 @@ class App(ctk.CTk):
     def __init__(self):
         # Set Window Configuration
         super().__init__(fg_color="gray100")
-        self.iconbitmap("images\\cmw.ico")
+        self.iconbitmap("cleaner\\images\\cmw.ico")
         self.geometry("1080x700")
         self.resizable(width=False, height=False)
         self.title("Clean My Windows")
