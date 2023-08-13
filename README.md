@@ -6,7 +6,6 @@
 ### This tool cleans following directories:
 - `C:\Users\username\AppData\Local\Temp`
 - `C:\Windows\Temp`
-- `C:\Windows\Prefetch`
 - `All directories with names cache or cache2 in C:\Users\username\AppData\Local`
 ---
 ### How to run
@@ -31,11 +30,3 @@
 python run.py -i y
 ```
 > **Note**: Command line arguments will instruct the script to install the required packages first
-
----
-#### Building executable
-`buil.py` script automates the process of installing `pyinstaller` and building the executable. Run
-```bash
-python build.py
-```
-If there were no errors, `dist\Clean My Windows\Clean My Windows.exe` will be the path of the executable.

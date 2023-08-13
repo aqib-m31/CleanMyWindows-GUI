@@ -1,5 +1,7 @@
 import os
 from re import search, IGNORECASE
+from .paths import USER_TEMP_DIR, SYSTEM_TEMP_DIR, LOCAL_DIR
+from shutil import rmtree
 
 
 def get_dir_size(dir_path: str) -> int:
@@ -15,23 +17,6 @@ def get_dir_size(dir_path: str) -> int:
 
     for root, _, files in os.walk(dir_path):
         size += sum(os.path.getsize(os.path.join(root, name)) for name in files)
-
-    return size
-
-
-def get_dirs_size(dir_paths: list) -> int:
-    """
-    Return size of a list of directories.
-
-    :param dir_paths: List of directory paths
-    :type dir_paths: list
-    :return: Size of directories in dir_paths
-    :rtype: int
-    """
-    size = 0
-
-    for dir in dir_paths:
-        size += get_dir_size(dir)
 
     return size
 
@@ -56,19 +41,55 @@ def get_formatted_size(size: int) -> str:
     return f"{size:.2f}{suffix}"
 
 
-def get_cache_dirs(dir_path: str) -> list:
-    """
-    Return list of all the paths in which regex pattern is found.
+def get_cache_dirs():
+    """Yields a list of name and path of cache dirs."""
 
-    :param dir_path: Path of a directory
-    :type dir_path: str
-    :return: A list of cache directories
-    :rtype: list
-    """
     cache_dirs = set()
+    for root, _, _ in os.walk(LOCAL_DIR):
+        if matches := search(
+            r"(.+local\\(\w+)\\((?:.+)\\)?(?:cache2?))\\", root, IGNORECASE
+        ):
+            dir = matches.group(1)
+            name = matches.group(2)
+            if dir not in cache_dirs:
+                yield [f"{name.title()}\nCache", dir]
+            cache_dirs.add(dir)
 
-    for root, _, _ in os.walk(dir_path):
-        if matches := search(r"((?:.+)\\(?:cache2?))\\", root, IGNORECASE):
-            cache_dirs.add(matches.group(1))
+    yield ["User\nTemp", USER_TEMP_DIR]
+    yield ["System\nTemp", SYSTEM_TEMP_DIR]
 
-    return list(cache_dirs)
+
+def clean_dir(dir: str) -> int:
+    """
+    Clean a directory.
+
+    :param dir: Path of a directory
+    :type dir: str
+    :return: Cleaned size or -1 for error
+    :rtype: int
+    """
+    cleaned_size = 0
+
+    try:
+        files = os.listdir(dir)
+
+        if not files:
+            return cleaned_size
+
+        for file in files:
+            path = os.path.join(dir, file)
+            try:
+                if not os.path.isdir(path):
+                    file_size = os.path.getsize(path)
+                    os.remove(path)
+                else:
+                    file_size = get_dir_size(path)
+                    rmtree(path)
+            except PermissionError:
+                continue
+            else:
+                cleaned_size += file_size
+    except PermissionError:
+        return -1
+
+    return cleaned_size

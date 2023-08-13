@@ -13,10 +13,8 @@ def main():
     if args.install == "y":
         install_requirements()
         
-    from cleaner.main import App
-    
-    app = App()
-    app.mainloop()
+    from cleaner.main import main
+    main()
 
 
 def install_requirements():
