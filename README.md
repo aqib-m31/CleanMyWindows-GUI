@@ -12,7 +12,7 @@
 1. Clone the repository.
    
     ```bash
-    git clone https://github.com/aqib-m31/CleanMyWindows-GUI
+    git clone https://github.com/aqib-m31/CleanMyWindows-GUI.git
     ```
 3. Change directory to Project the Directory.
    
