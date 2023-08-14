@@ -112,6 +112,8 @@ class MainFrame(ctk.CTkScrollableFrame):
         self.folder = DirStat(self, name, dir_size, dir_path)
 
         # Make sure icon appears on next line when there's no space
+        MainFrame.MAX_COL = self.winfo_width() // (self.folder.winfo_reqwidth() + 130)
+
         if MainFrame.CURRENT_COL > MainFrame.MAX_COL:
             MainFrame.CURRENT_COL = 0
             MainFrame.CURRENT_ROW += 1
@@ -132,17 +134,50 @@ class MainFrame(ctk.CTkScrollableFrame):
             if isinstance(dir, DirStat) and dir.checkbox.get():
                 yield dir
 
-    def select_all(self):
-        """Select all the dirs in main frame."""
+    def set_all(self, value: int) -> None:
+        """
+        Sets tha value of all the checkboxes.
+
+        :param value: Value to be set (0 or 1)
+        :type value: int
+        """
         for dir in self.winfo_children():
             if isinstance(dir, DirStat):
-                dir.checkbox.toggle()
+                if not value:
+                    dir.checkbox.deselect()
+                elif value == 1:
+                    dir.checkbox.select()
 
     def disable_all(self):
         """Set state of all the checkboxes of DirStat to disabled."""
         for dir in self.winfo_children():
             if isinstance(dir, DirStat):
                 dir.checkbox.configure(state="disabled")
+
+    def align_items(self, event):
+        if not len(self.winfo_children()):
+            return
+
+        max_cols = self.winfo_width() // (self.folder.winfo_reqwidth() + 130)
+
+        if MainFrame.MAX_COL == max_cols:
+            return
+
+        MainFrame.MAX_COL = max_cols
+        MainFrame.CURRENT_COL = 0
+        MainFrame.CURRENT_ROW = 0
+        for dir in self.winfo_children():
+            if not isinstance(dir, DirStat):
+                continue
+            if MainFrame.CURRENT_COL > MainFrame.MAX_COL:
+                MainFrame.CURRENT_COL = 0
+                MainFrame.CURRENT_ROW += 1
+
+            dir.grid(row=MainFrame.CURRENT_ROW, column=MainFrame.CURRENT_COL)
+
+            MainFrame.CURRENT_COL += 1
+
+        self._parent_canvas.configure(scrollregion=self._parent_canvas.bbox("all"))
 
 
 class CButton(ctk.CTkButton):

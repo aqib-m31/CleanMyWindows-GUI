@@ -17,8 +17,10 @@ class App(ctk.CTk):
         # Set Window Configuration
         super().__init__(fg_color="gray100")
         self.iconbitmap("cleaner\\images\\cmw.ico")
-        self.geometry("1080x700")
-        self.resizable(width=False, height=False)
+        self.width = self.winfo_screenwidth() - 100
+        self.height = self.winfo_screenheight() - 100
+        self.geometry(f"{self.width}x{self.height}+50+0")
+        self.resizable(width=True, height=False)
         self.title("Clean My Windows")
         self.columnconfigure(0, weight=1)
 
@@ -30,23 +32,31 @@ class App(ctk.CTk):
             fg_color="light sea green",
             text_color="white",
         )
-        self.lbl_title.grid(
-            row=0, column=0, ipady=20, pady=(0, 20), columnspan=2, sticky="new"
+        self.lbl_title.grid(row=0, column=0, ipady=20, sticky="new")
+
+        # Frame to hold all content
+        self.frame = ctk.CTkScrollableFrame(
+            master=self,
+            fg_color="white",
+            height=(self.height - 2 * self.lbl_title.winfo_reqheight()),
         )
+        self.frame.grid(row=1, column=0, sticky="nsew")
+        self.frame.columnconfigure((0, 1), weight=1)
 
         # Main Frame to display stats
-        self.frm_main = MainFrame(self)
+        self.frm_main = MainFrame(self.frame)
         self.frm_main.grid(
-            row=1, column=0, padx=50, pady=20, sticky="nsew", columnspan=2
+            row=0, column=0, padx=50, pady=20, sticky="nsew", columnspan=2
         )
+        self.frm_main.bind("<Configure>", self.frm_main.align_items)
 
         # Scan Button
         self.btn_scan = CButton(
-            self,
+            self.frame,
             text="SCAN JUNK",
             command=self.handle_scan,
         )
-        self.btn_scan.grid(row=2, column=0, pady=20)
+        self.btn_scan.grid(row=1, column=0, pady=20, columnspan=2)
 
     def handle_scan(self):
         """Handle scanning process."""
@@ -69,17 +79,16 @@ class App(ctk.CTk):
     def display_options(self):
         """Display option for cleaning cache and exit."""
         self.btn_scan.destroy()
-        self.btn_clean = CButton(self, text="CLEAN", command=self.clean)
-        self.btn_clean.grid(row=2, column=0, pady=20, padx=10, sticky="e")
+        self.btn_clean = CButton(self.frame, text="CLEAN", command=self.clean)
+        self.btn_clean.grid(row=1, column=0, pady=20, padx=10, sticky="e")
 
-        self.btn_exit = CButton(self, text="EXIT", command=self.destroy)
-        self.columnconfigure((0, 1), weight=1)
-        self.btn_exit.grid(row=2, column=1, pady=20, padx=10, sticky="w")
+        self.btn_exit = CButton(self.frame, text="EXIT", command=self.destroy)
+        self.btn_exit.grid(row=1, column=1, pady=20, padx=10, sticky="w")
 
         self.checkbox_select_all = CCheckBox(
-            self, "Select All", command=self.frm_main.select_all
+            self.frame, "Select All", command=self.select_all
         )
-        self.checkbox_select_all.grid(row=2, column=1, sticky="e", padx=(0, 60))
+        self.checkbox_select_all.grid(row=1, column=1, sticky="e", padx=(0, 60))
 
     def clean(self):
         """Clean the cache directories."""
@@ -90,13 +99,16 @@ class App(ctk.CTk):
         self.frm_main.disable_all()
 
         # Display progress bar
-        self.prgbar = ctk.CTkProgressBar(self, progress_color="light sea green")
+        self.prgbar = ctk.CTkProgressBar(self.frame, progress_color="light sea green")
         self.prgbar.set(0)
-        self.prgbar.grid(row=3, column=0, columnspan=2, padx=50, pady=10, sticky="ew")
+        self.prgbar.grid(row=2, column=0, columnspan=2, padx=50, pady=10, sticky="ew")
         self.lbl_prgbar = ctk.CTkLabel(
-            self, text="", font=self.btn_exit.cget("font"), text_color="light sea green"
+            self.frame,
+            text="",
+            font=self.btn_exit.cget("font"),
+            text_color="light sea green",
         )
-        self.lbl_prgbar.grid(row=4, column=0, columnspan=2, pady=(0, 5), sticky="ew")
+        self.lbl_prgbar.grid(row=3, column=0, columnspan=2, pady=(0, 5), sticky="ew")
 
         # Disable clean button and exit button till cleaning finishes
         self.btn_clean.configure(state="disabled", text="CLEANING")
@@ -124,12 +136,12 @@ class App(ctk.CTk):
 
         if access_denied_files != 0:
             self.lbl_msg = ctk.CTkLabel(
-                self,
+                self.frame,
                 text=f"[ACCESS DENIED] TO {access_denied_files} FILES",
                 font=("Calibri", 15),
                 text_color="red",
             )
-            self.lbl_msg.grid(row=5, column=0, columnspan=2, pady=(0, 15), sticky="ew")
+            self.lbl_msg.grid(row=4, column=0, columnspan=2, pady=(0, 15), sticky="ew")
 
         # Update Clean button text and restore state of exit button
         if total_cleaned_size == 0:
@@ -147,14 +159,21 @@ class App(ctk.CTk):
             size += dir.dir_size
 
         self.lbl_total_size = ctk.CTkLabel(
-            self,
+            self.frame,
             text=f"Total Size: {get_formatted_size(size)}",
             font=ctk.CTkFont("Calibri", 24, "bold"),
             text_color="light sea green",
         )
-        self.lbl_total_size.grid(row=3, column=0, pady=10, columnspan=2, sticky="ew")
+        self.lbl_total_size.grid(row=2, column=0, pady=10, columnspan=2, sticky="ew")
 
         return size
+
+    def select_all(self):
+        """Checks or unchecks all the folders."""
+        if self.checkbox_select_all.get():
+            self.frm_main.set_all(1)
+        elif not self.checkbox_select_all.get():
+            self.frm_main.set_all(0)
 
 
 def main() -> None:
