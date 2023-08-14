@@ -43,8 +43,12 @@ class App(ctk.CTk):
         self.frame.grid(row=1, column=0, sticky="nsew")
         self.frame.columnconfigure((0, 1), weight=1)
 
+        self.checkbox_select_all = CCheckBox(
+            self.frame, "Select All", command=self.select_all
+        )
+
         # Main Frame to display stats
-        self.frm_main = MainFrame(self.frame)
+        self.frm_main = MainFrame(self.frame, self.checkbox_select_all)
         self.frm_main.grid(
             row=0, column=0, padx=50, pady=20, sticky="nsew", columnspan=2
         )
@@ -85,9 +89,6 @@ class App(ctk.CTk):
         self.btn_exit = CButton(self.frame, text="EXIT", command=self.destroy)
         self.btn_exit.grid(row=1, column=1, pady=20, padx=10, sticky="w")
 
-        self.checkbox_select_all = CCheckBox(
-            self.frame, "Select All", command=self.select_all
-        )
         self.checkbox_select_all.grid(row=1, column=1, sticky="e", padx=(0, 60))
 
     def clean(self):
