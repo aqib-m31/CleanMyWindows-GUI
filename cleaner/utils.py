@@ -78,7 +78,7 @@ def clean_dir(dir: str) -> list:
         files = os.listdir(dir)
 
         if not files:
-            return cleaned_size
+            return [cleaned_size, access_denied_files]
 
         for file in files:
             path = os.path.join(dir, file)
