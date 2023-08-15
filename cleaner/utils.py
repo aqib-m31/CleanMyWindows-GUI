@@ -73,7 +73,7 @@ def clean_dir(dir: str) -> list:
 
     if not os.path.exists(dir):
         return [0, 0]
-    
+
     try:
         files = os.listdir(dir)
 
