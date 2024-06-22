@@ -13,8 +13,11 @@ Classes:
 """
 
 
+import threading
+
 import customtkinter as ctk
 from PIL import Image
+
 from .utils import (
     get_dir_size,
     get_formatted_size,
@@ -386,7 +389,9 @@ class Frame(ctk.CTkScrollableFrame):
 
     Methods:
         select_all: Checks or unchecks all the folders.
-        handle_scan: Handles the scanning process.
+        handle_scan: Begins scanning, disables scan button, starts background scan.
+        _scan_directories: Scans directories in background, updates UI, calls _finalize_scan.
+        _finalize_scan: Completes scan, updates UI with total size, shows cleaning options.
         display_options: Displays options for cleaning and exiting.
         clean: Cleans the cache directories.
         display_total_size: Displays the total size of the cache dirs.
@@ -427,8 +432,11 @@ class Frame(ctk.CTkScrollableFrame):
     def handle_scan(self):
         """Handle scanning process."""
         self.btn_scan.configure(state="disabled", text="SCANNING")
+        scan_thread = threading.Thread(target=self._scan_directories)
+        scan_thread.start()
 
-        # Get name and path of cache directory and add directory stat to main frame
+    def _scan_directories(self):
+        """Scan directories in a background thread."""
         for name, dir_path in get_cache_dirs():
             size = get_dir_size(dir_path)
             self.frm_main.add_stat(
@@ -436,9 +444,15 @@ class Frame(ctk.CTkScrollableFrame):
                 dir_path=dir_path,
                 dir_size=size,
             )
-            self.frm_main.update()
+            # Ensure that UI updates are done in the main thread
+            self.frm_main.after(0, self.frm_main.update)
 
         # Display total size of cache dirs and display option for cleaning
+        # Ensure that UI updates are done in the main thread
+        self.frm_main.after(0, self._finalize_scan)
+
+    def _finalize_scan(self):
+        """Finalize scanning by updating UI with total size and cleaning options."""
         self.total_size = self.display_total_size()
         self.display_options()
 
